@@ -4,7 +4,7 @@ project(framing)
 
 # Automatically set the version number
 set(FRAMING_VERSION_MAJOR  \"1\")
-set(FRAMING_VERSION_MINOR  \"1pre\")
+set(FRAMING_VERSION_MINOR  \"0\")
 configure_file (
     "${PROJECT_SOURCE_DIR}/src/FramingConfig.h.in"
     "${PROJECT_SOURCE_DIR}/src/FramingConfig.h"
