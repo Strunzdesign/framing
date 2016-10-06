@@ -1,0 +1,5 @@
+All source code files of this project are under the "BSD 3 Clause" licence (see file LICENSE).
+
+The author permits the use of all files under the "BSD 3 Clause" licence for the development of proprietary software.
+However, any restictions of the licences of involved toolkits, i.e., the boost libraries, must be followed as long
+as the respective toolkits are used.
