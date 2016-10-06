@@ -1,4 +1,4 @@
-# Framing toolkit for easy creation of arbitrary TCP-based protocols 
+# Framing toolkit for arbitrary TCP-based protocols 
 Framing toolkit for easy creation of arbitrary TCP-based protocols.
 
 This software is intended to be portable and makes use of the boost libraries. It was tested on GNU/Linux (GCC toolchain)
