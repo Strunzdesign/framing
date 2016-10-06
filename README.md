@@ -8,7 +8,7 @@ Stable releases of the framing toolkit:
 - v1.0 from 06.10.2016
 
 Current state:
-- none yet
+- v1.1pre (git master branch)
 
 Required libraries and tools:
 - None. This repository does only contain C++ header files.
