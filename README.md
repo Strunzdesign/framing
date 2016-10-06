@@ -5,7 +5,7 @@ This software is intended to be portable and makes use of the boost libraries. I
 and Microsoft Windows (nuwen MinGW).
 
 Stable releases of the framing toolkit:
-- none yet
+- v1.0 from 06.10.2016
 
 Current state:
 - none yet
