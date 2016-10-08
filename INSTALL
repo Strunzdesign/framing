@@ -1,0 +1,62 @@
+===
+How to install the header files of the framing toolkit
+===
+
+Initial download and setup on GNU/Linux:
+---
+On GNU/Linux systems, installation is easy, as long as the required tools are available.
+
+Preparations:
+- Install the "GCC toolchain"
+- Install the "Boost Libraries"
+- Install the "CMake" build system
+
+To compile and to install the HDLC daemon, just follow these steps:
+1.) git clone https://github.com/Strunzdesign/framing.git
+2.) cd framing
+3.) mkdir build
+4.) cd build
+5.) cmake ..
+6.) make
+7.) make install (as root)
+
+The header files will be installed to "/usr/local/include/"
+
+
+
+Initial download and setup on Microsoft Windows 7:
+---
+For Microsoft Windows, one has to install the toolchain first.
+
+Preparations:
+- Download the latest "nuwen MinGW" distribution from https://nuwen.net/mingw.html
+- Assure that you pick a MinGW distribution that already includes "Git" and the "Boost Libraries"
+- Follow the installation guide, e.g., unpack MinGW to C:\MinGW
+- Add MinGW to the path according to the installation guide
+- Download and install "CMake" from https://cmake.org/download
+
+To compile and to install the HDLC daemon, just follow these steps:
+1.) Go to your projects' folder and open a shell there
+2.) git clone https://github.com/Strunzdesign/framing.git
+3.) cd framing
+4.) mkdir build
+5.) cd build
+6.) Pick yourself a directory to install the compiled files, e.g., consider C:\framing
+7.) cmake -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX=/c/framing ..
+8.) If you get an error message on step 8, repeat step 8 once
+9.) make
+10.) make install
+
+The header files will be installed to "C:\framing\include\" if not specified differently.
+
+
+
+Update and reompile your local repository (same for all OS):
+---
+1.) cd snet-devel
+2.) git pull
+3.) cd build
+4.) make
+5.) make install
+
+Have fun :-)
