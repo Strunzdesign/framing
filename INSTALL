@@ -51,9 +51,9 @@ The header files will be installed to "C:\framing\include\" if not specified dif
 
 
 
-Update and reompile your local repository (same for all OS):
+Update and recompile your local repository (same for all OS):
 ---
-1.) cd snet-devel
+1.) cd framing
 2.) git pull
 3.) cd build
 4.) make
