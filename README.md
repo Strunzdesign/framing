@@ -8,7 +8,9 @@ and Microsoft Windows (nuwen MinGW).
 - v1.0 from 06.10.2016
 
 ## Required libraries and tools:
-- None. This repository does only contain C++ header files.
+- Boost, a platform-independent toolkit for development of C++ applications
+- CMake, the build system
+- Doxygen, for development
 
 ## Documentation
 - See online doxygen documentation at https://strunzdesign.github.io/framing/
