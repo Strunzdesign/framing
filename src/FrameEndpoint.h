@@ -132,7 +132,7 @@ public:
      * 
      *  \retval true the frame endpoint is currently running
      *  \retval false the frame endpoint is currently not running
-     *  \return bool indicates whether this frame endpoint entity was already started
+     *  \return Indicates whether this frame endpoint entity was already started
      */
     bool GetWasStarted() const {
         return m_bStarted;
@@ -233,7 +233,7 @@ public:
      * 
      *  \retval true the frame was successfully enqueued
      *  \retval false there was a problem enqueueing the frame
-     *  \return bool indicates whether the frame was successfully enqueued for transmission
+     *  \return Indicates whether the frame was successfully enqueued for transmission
      */
     bool SendFrame(const Frame& a_Frame, std::function<void()> a_OnSendDoneCallback = nullptr) {
         if (m_SEPState == SEPSTATE_SHUTDOWN) {
@@ -323,7 +323,7 @@ private:
      * 
      *  \retval true subsequent incoming frames are allowd to be read and handled
      *  \retval false no subsequent incoming frames must be read and handled currently
-     *  \return bool indicates whether immediate delivery of subsequent incoming frames is allowed
+     *  \return Indicates whether immediate delivery of subsequent incoming frames is allowed
      */
     bool EvaluateReadBuffer() {
         bool l_bAcceptsSubsequentFrames = true;

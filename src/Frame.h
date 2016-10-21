@@ -74,7 +74,7 @@ public:
      *  the format of the frame's fields for frames that are transmitted. This method is solely called by an
      *  FrameEndpoint entity.
      * 
-     *  \return std::vector<unsigned char> the buffer containing the serialized frame ready for transmission
+     *  \return A buffer containing the serialized frame ready for transmission
      */
     virtual const std::vector<unsigned char> Serialize() const = 0;
     
@@ -102,7 +102,7 @@ public:
      * 
      *  \retval true no error occured
      *  \retval false a protocol violation was detected. The stream is invalid now and the TCP socket must be closed
-     *  \return bool indicates success or failure of parsing the provided chunk of bytes
+     *  \return Indicates success or failure of parsing the provided chunk of bytes
      */
     bool ParseBytes(const unsigned char *a_ReadBuffer, size_t &a_ReadBufferOffset, size_t &a_BytesAvailable) {
         // Checks
@@ -146,7 +146,7 @@ protected:
      * 
      *  \retval true no error occured
      *  \retval false a protocol violation was detected
-     *  \return bool indicates success or failure of parsing the provided chunk of bytes
+     *  \return Indicates success or failure of parsing the provided chunk of bytes
      */
     virtual bool Deserialize() = 0;
 
