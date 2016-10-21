@@ -16,4 +16,4 @@ All notable changes to this project will be documented in this file.
 - First tested version without any open issues
 
 
-[Unreleased]: https://github.com/Strunzdesign/hdlcd/compare/v1.0...HEAD
+[Unreleased]: https://github.com/Strunzdesign/framing/compare/v1.0...HEAD
