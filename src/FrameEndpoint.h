@@ -1,6 +1,8 @@
 /**
  * \file      FrameEndpoint.h
- * \brief 
+ * \brief     This file contains the header declaration of class FrameEndpoint
+ * \author    Florian Evers, florian-evers@gmx.de
+ * \copyright BSD 3 Clause licence
  *
  * Copyright (c) 2016, Florian Evers, florian-evers@gmx.de
  * All rights reserved.
@@ -45,9 +47,32 @@
 #include <assert.h>
 #include "Frame.h"
 
+/*! \class FrameEndpoint
+ *  \brief Class FrameEndpoint
+ * 
+ *  This is a convenience class to take full control over a provided connected TCP socket in order to
+ *  receive and transmit used-defined frames. The user has to provide callbacks to be notified on
+ *  reception of incoming frames and to be notified if errors occur. Thus, this class offers a
+ *  fully asynchronous interface.
+ * 
+ *  Frame objects representing received frames are created internally. For this purpose, the
+ *  user has to register frame factory callbacks. These frame factories are selected according to the
+ *  received stream of bytes and offer a very easy interface to the user. Currently, this frame selection
+ *  scheme requires that the type of frame can be determined by evaluation of the very first byte of a frame.
+ *  If this is not possible, e.g., because multiple types of frames exist which differ in "later" bytes,
+ *  this FrameEndpoint class is not suitable!
+ */
 class FrameEndpoint: public std::enable_shared_from_this<FrameEndpoint>  {
 public:
-    // CTOR and DTOR
+    /*! \brief  The constructor of FrameEndpoint objects
+     * 
+     *  All internal members are initialized here. The ownership of the provided TCP socket is transferred, so the user MUST NOT
+     *  perform any operations on it after registration.
+     * 
+     *  \param  a_IOService the boost IO service object
+     *  \param  a_TcpSocket the connected TCP socket
+     *  \param  a_FrameTypeMask the mask used while looking at the "first byte" of each frame to determine its type
+     */
     FrameEndpoint(boost::asio::io_service& a_IOService, boost::asio::ip::tcp::socket& a_TcpSocket, uint8_t a_FrameTypeMask = 0xFF): m_IOService(a_IOService), m_TcpSocket(std::move(a_TcpSocket)), m_FrameTypeMask(a_FrameTypeMask) {
         // Initalize all remaining members
         m_SEPState = SEPSTATE_DISCONNECTED;
@@ -61,19 +86,40 @@ public:
         m_SendBufferOffset = 0;
     }
     
+    /*! \brief  The destructor of FrameEndpoint objects
+     * 
+     *  On destruction, it is assured that the provided TCP socket is closed correctly. No subsequent callbacks are triggered.
+     */
     ~FrameEndpoint() {
-        // Drop all callbacks and assure that close was called
+        // Drop all callbacks and assure that Close() was called
         m_OnFrameCallback  = nullptr;
         m_OnClosedCallback = nullptr;
         Close();
     }
     
+    /*! \brief  Forget all provided frame factory callbacks
+     * 
+     *  This method is use to clear the list of provided frame factory callbacks. After this, a new and completely different
+     *  set of frame factory callbacks can be provided together with a changed frame type mask. This allows changing the
+     *  user-defined protocol regarding a TCP socket for which a different protocol was specified earlier.
+     * 
+     *  \param  a_FrameTypeMask the mask used while looking at the "first byte" of each frame to determine its type
+     */
     void ResetFrameFactories(uint8_t a_FrameTypeMask = 0xFF) {
         // Drop all frame factories and copy the new filter mask
         m_FrameFactoryMap.clear();
         m_FrameTypeMask = a_FrameTypeMask;
     }
     
+    /*! \brief  Register one subsequent frame factory callback
+     * 
+     *  This method is use to clear the list of provided frame factory callbacks. After this, a new and completely different
+     *  set of frame factory callbacks can be provided together with a changed frame type mask. This allows changing the
+     *  user-defined protocol regarding a TCP socket for which a different protocol was specified earlier.
+     * 
+     *  \param  a_FrameType the frame type together with the frame type mask must match to activate the respective frame factory callback
+     *  \param  a_FrameFactory the frame factory callback that is invoked if the frame type matches
+     */
     void RegisterFrameFactory(unsigned char a_FrameType, std::function<std::shared_ptr<Frame>(void)> a_FrameFactory) {
         // Check that there is no frame factory for the specified frame type yet. If not then add it.
         assert(a_FrameFactory);
@@ -82,10 +128,22 @@ public:
         m_FrameFactoryMap[l_EffectiveFrameType] = a_FrameFactory;
     }
     
+    /*! \brief  A getter to query whether this frame endpoint entity was already started
+     * 
+     *  \retval true, if the frame endpoint is currently running
+     *  \retval false, if the frame endpoint is currently not running
+     *  \return bool, indicating whether this frame endpoint entity was already started
+     */
     bool GetWasStarted() const {
         return m_bStarted;
     }
     
+    /*! \brief  Start the frame endpoint entity
+     * 
+     *  The frame endpoint starts reading data from the socket and creates a stream of frame objects according to the provided
+     *  frame factory callback methods. Frames enqued for transmission are delivered in sequence. Be sure that you DO NOT call
+     *  this method twice, i.e., on a frame endpoint entity that is already running. This will trigger an assertion.
+     */
     void Start() {
         // There must be at least one frame factory available!
         assert(m_FrameFactoryMap.empty() == false);
@@ -104,10 +162,22 @@ public:
         } // if
     }
     
+    /*! \brief  Tear a frame endpoint entity down
+     * 
+     *  This method should be called instead of Close() if you want to assure a proper teardown sequence of the provided TCP socket.
+     *  This assures that all frames enqueued for transmission are delivered before the socket is closed. You SHOULD NOT call
+     *  Close() anymore, as this is performed internally as soon as the send queue becomes empty. You SHOULD NOT send subsequent
+     *  frames after calling this method as you'll get no feedback whether the respective frame will be transmitted or not.
+     */
     void Shutdown() {
         m_bShutdown = true;
     }
     
+    /*! \brief  Close the frame endpoint entity
+     * 
+     *  Invoking this method will instantly stop reception of incoming and transmission of outgoing frames. Frames pending in the send queue
+     *  will be lost. No problems arise if this method is called multiple times. Consider calling Shutdown() instead.
+     */
     void Close() {
         if (m_bStarted && (!m_bStopped)) {
             m_bStopped = true;
@@ -120,6 +190,13 @@ public:
         } // if
     }
     
+    /*! \brief  Trigger delivery of the next incoming frame
+     * 
+     *  Invoking this method triggers read and delivery of the next incoming frame. This allows an asynchronous processing of frames.
+     *  For such an asynchronous mode of operation, the provided OnFrameCallback must return the value "false" in order to stop automatic
+     *  delivery of subsequent frames. This provides unlimited time to consume a frame and stalls the TCP socket, but requires a later call
+     *  to this method in order to continue receiving the next incoming frame.
+     */
     void TriggerNextFrame() {
         // Checks
         if (m_bReceiving) {
@@ -143,6 +220,21 @@ public:
         }); // post
     }
     
+    /*! \brief  Enqueue a frame for transmission
+     * 
+     *  Use this method to enqueue a frame for transmission. The user can select between quasi-synchonous and
+     *  asynchronous behavior. In the first case, one has to evaluate the return value to check whether a provided
+     *  frame was accepted or denied due to a full transmission queue. For asynchronous behavior the user has to provide
+     *  a callback method on a per-packet basis that is called after the frame was successfully transmitted.
+     *  Currently this callback method is only called on success but never on error, e.g., if the socket is closed.
+     * 
+     *  \param  a_Frame the frame to send
+     *  \param  a_OnSendDoneCallback a callback to be invoked if this frame was sent
+     * 
+     *  \retval true, if the frame was successfully enqueued
+     *  \retval false, if ehere was a problem enqueueing the frame
+     *  \return bool, to indicate whether the frame was successfully enqueued for transmission
+     */
     bool SendFrame(const Frame& a_Frame, std::function<void()> a_OnSendDoneCallback = nullptr) {
         if (m_SEPState == SEPSTATE_SHUTDOWN) {
             if (a_OnSendDoneCallback) {
@@ -170,15 +262,32 @@ public:
         return true;
     }
     
+    /*! \brief  Provide the callback method for handling of incoming frames
+     * 
+     *  The user should provide one callback method to be able to handle incoming frames. For each incoming
+     *  frame the callback method is called once.
+     * 
+     *  \param  a_OnFrameCallback the callback method that is invoked on reception of incoming frames
+     */
     void SetOnFrameCallback(std::function<bool(std::shared_ptr<Frame>)> a_OnFrameCallback) {
         m_OnFrameCallback = a_OnFrameCallback;
     }
-    
+
+    /*! \brief  Provide the callback method for handling of connection aborts
+     * 
+     *  The user should provide one callback method to be able to handle error events such as a closed TCP socket.
+     * 
+     *  \param  a_OnClosedCallback the callback method that is invoked on error or if the socket was closed
+     */
     void SetOnClosedCallback(std::function<void()> a_OnClosedCallback) {
         m_OnClosedCallback = a_OnClosedCallback;
     }
 
 private:
+    /*! \brief  Internal helper method to trigger reading of data from the TCP socket
+     * 
+     *  This method contains the asynchonous reader.
+     */
     void ReadNextChunk() {
         if (m_bStopped || m_bReceiving) {
             // Already stopped / a later trigger will happen
@@ -207,6 +316,15 @@ private:
         }); // async_read_some
     }
     
+    /*! \brief  Internal helper method to evaluate a received chunk of data read from the TCP socket
+     * 
+     *  This method delivers incoming frames to the user via the provided callback method. If the user decides
+     *  not to accept subsequent frames, i.e., to stall the receiver, this method does not trigger reading.
+     * 
+     *  \retval true, if subsequent incoming frames are allowd to be read and handled
+     *  \retval false, if no subsequent incoming frames must be read and handled currently
+     *  \return bool, to indicate whether immediate delivery of subsequent incoming frames is allowed
+     */
     bool EvaluateReadBuffer() {
         bool l_bAcceptsSubsequentFrames = true;
         assert(m_BytesInReadBuffer);
@@ -254,6 +372,10 @@ private:
         return l_bAcceptsSubsequentFrames;
     }
 
+    /*! \brief  Internal helper method to trigger sending of data via the TCP socket
+     * 
+     *  This method contains the asynchonous writer.
+     */
     void DoWrite() {
         auto self(shared_from_this());
         if (m_bStopped) return;
@@ -295,19 +417,19 @@ private:
     }
 
     // Members
-    boost::asio::io_service& m_IOService;
-    boost::asio::ip::tcp::socket m_TcpSocket;
-    uint8_t m_FrameTypeMask;
+    boost::asio::io_service& m_IOService;     //!< The boost IO service object
+    boost::asio::ip::tcp::socket m_TcpSocket; //!< The TCP socket
+    uint8_t m_FrameTypeMask;                  //!< The currently active frame type mask for frame factory selection
     
-    std::shared_ptr<Frame> m_IncomingFrame;
-    std::deque<std::pair<std::vector<unsigned char>, std::function<void()>>> m_SendQueue; // To be transmitted
-    size_t m_SendBufferOffset; //!< To detect and handle partial writes to the TCP socket
-    bool m_bWriteInProgress;
+    std::shared_ptr<Frame> m_IncomingFrame;   //!< The pending frame that is currently assembled by reading from the TCP socket
+    std::deque<std::pair<std::vector<unsigned char>, std::function<void()>>> m_SendQueue; //!< The transmission queue of waiting frames
+    size_t m_SendBufferOffset;                //!< To detect and handle partial writes to the TCP socket
+    bool m_bWriteInProgress;                  //!< This flag indicates that the TCP writer is currently active
     
     enum { E_MAX_LENGTH = 65535 };
-    unsigned char m_ReadBuffer[E_MAX_LENGTH];
-    size_t m_BytesInReadBuffer;
-    size_t m_ReadBufferOffset;
+    unsigned char m_ReadBuffer[E_MAX_LENGTH]; //!< The raw data read buffer
+    size_t m_BytesInReadBuffer;               //!< The amount of bytes currently stored in the read buffer
+    size_t m_ReadBufferOffset;                //!< The read offset within the read buffer
     
     // State
     typedef enum {
@@ -315,18 +437,18 @@ private:
         SEPSTATE_CONNECTED    = 1,
         SEPSTATE_SHUTDOWN     = 2
     } E_SEPSTATE;
-    E_SEPSTATE m_SEPState;
-    bool m_bShutdown;
-    bool m_bStarted;
-    bool m_bStopped;
-    bool m_bReceiving;
+    E_SEPSTATE m_SEPState;                    //!< The state of this entity
+    bool m_bShutdown;                         //!< This flag indicates that Shutdown() was called
+    bool m_bStarted;                          //!< This flag indicates that Start() was called
+    bool m_bStopped;                          //!< This flag indicates that Close() was called
+    bool m_bReceiving;                        //!< This flag indicates that the TCP reader is currently active
     
     // Callbacks
-    std::function<bool(std::shared_ptr<Frame>)> m_OnFrameCallback;
-    std::function<void()>                       m_OnClosedCallback;
+    std::function<bool(std::shared_ptr<Frame>)> m_OnFrameCallback;  //!< The callback to be invoked on each incoming frame
+    std::function<void()>                       m_OnClosedCallback; //!< The callback to be invoked on error or on close
     
     // The frame factories
-    std::map<uint8_t, std::function<std::shared_ptr<Frame>(void)>> m_FrameFactoryMap;
+    std::map<uint8_t, std::function<std::shared_ptr<Frame>(void)>> m_FrameFactoryMap; //!< The provided frame factory callbacks
 };
 
 #endif // FRAME_ENDPOINT_H

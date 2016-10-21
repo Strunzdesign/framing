@@ -3,6 +3,7 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 ### Added
+- Added doxygen headers
 - Added INSTALL file
 - Added this Changelog
 
