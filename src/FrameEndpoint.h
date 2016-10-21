@@ -130,9 +130,9 @@ public:
     
     /*! \brief  A getter to query whether this frame endpoint entity was already started
      * 
-     *  \retval true, if the frame endpoint is currently running
-     *  \retval false, if the frame endpoint is currently not running
-     *  \return bool, indicating whether this frame endpoint entity was already started
+     *  \retval true the frame endpoint is currently running
+     *  \retval false the frame endpoint is currently not running
+     *  \return bool indicates whether this frame endpoint entity was already started
      */
     bool GetWasStarted() const {
         return m_bStarted;
@@ -231,9 +231,9 @@ public:
      *  \param  a_Frame the frame to send
      *  \param  a_OnSendDoneCallback a callback to be invoked if this frame was sent
      * 
-     *  \retval true, if the frame was successfully enqueued
-     *  \retval false, if ehere was a problem enqueueing the frame
-     *  \return bool, to indicate whether the frame was successfully enqueued for transmission
+     *  \retval true the frame was successfully enqueued
+     *  \retval false there was a problem enqueueing the frame
+     *  \return bool indicates whether the frame was successfully enqueued for transmission
      */
     bool SendFrame(const Frame& a_Frame, std::function<void()> a_OnSendDoneCallback = nullptr) {
         if (m_SEPState == SEPSTATE_SHUTDOWN) {
@@ -321,9 +321,9 @@ private:
      *  This method delivers incoming frames to the user via the provided callback method. If the user decides
      *  not to accept subsequent frames, i.e., to stall the receiver, this method does not trigger reading.
      * 
-     *  \retval true, if subsequent incoming frames are allowd to be read and handled
-     *  \retval false, if no subsequent incoming frames must be read and handled currently
-     *  \return bool, to indicate whether immediate delivery of subsequent incoming frames is allowed
+     *  \retval true subsequent incoming frames are allowd to be read and handled
+     *  \retval false no subsequent incoming frames must be read and handled currently
+     *  \return bool indicates whether immediate delivery of subsequent incoming frames is allowed
      */
     bool EvaluateReadBuffer() {
         bool l_bAcceptsSubsequentFrames = true;

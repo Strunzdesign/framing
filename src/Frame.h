@@ -74,7 +74,7 @@ public:
      *  the format of the frame's fields for frames that are transmitted. This method is solely called by an
      *  FrameEndpoint entity.
      * 
-     *  \return std::vector<unsigned char>, the buffer containing the serialized frame ready for transmission
+     *  \return std::vector<unsigned char> the buffer containing the serialized frame ready for transmission
      */
     virtual const std::vector<unsigned char> Serialize() const = 0;
     
@@ -86,7 +86,7 @@ public:
      *  at first a length field of a known length has to be read followed by the remainder containing a dynamic amount
      *  of bytes. Such a logic has to be implemented in the Deserialize() method of the derived class.
      * 
-     *  \return size_t, the amount subsequent bytes required to assemble the frame
+     *  \return size_t the amount subsequent bytes required to assemble the frame
      */
     size_t BytesNeeded() const { return m_BytesRemaining; }
 
@@ -100,9 +100,9 @@ public:
      *  \param  a_ReadBufferOffset the read offset within the provided incoming byte buffer to start with
      *  \param  a_BytesAvailable the remaining amount of bytes in the read buffer to evaluate
      * 
-     *  \retval true, if no error occured
-     *  \retval false, if a protocol violation was detected. The stream is invalid now and the TCP socket must be closed
-     *  \return bool, to indicate success or failure of parsing the provided chunk of bytes
+     *  \retval true no error occured
+     *  \retval false a protocol violation was detected. The stream is invalid now and the TCP socket must be closed
+     *  \return bool indicates success or failure of parsing the provided chunk of bytes
      */
     bool ParseBytes(const unsigned char *a_ReadBuffer, size_t &a_ReadBufferOffset, size_t &a_BytesAvailable) {
         // Checks
@@ -144,9 +144,9 @@ protected:
      *  the format of the frame's fields for frames that are received. This method is solely called by the ParseBytes()
      *  method after a specified amount of bytes was successfully received.
      * 
-     *  \retval true, if no error occured
-     *  \retval false, if a protocol violation was detected
-     *  \return bool to indicate success or failure of parsing the provided chunk of bytes
+     *  \retval true no error occured
+     *  \retval false a protocol violation was detected
+     *  \return bool indicates success or failure of parsing the provided chunk of bytes
      */
     virtual bool Deserialize() = 0;
 
