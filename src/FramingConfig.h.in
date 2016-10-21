@@ -1,5 +1,5 @@
 /**
- * \file      FrameConfig.h
+ * \file      FramingConfig.h
  * \brief     This file contains the version number of the framing package
  * \author    Florian Evers, florian-evers@gmx.de
  * \copyright BSD 3 Clause licence
