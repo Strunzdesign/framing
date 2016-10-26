@@ -99,7 +99,7 @@ public:
     
     /*! \brief  Forget all provided frame factory callbacks
      * 
-     *  This method is use to clear the list of provided frame factory callbacks. After this, a new and completely different
+     *  This method is used to clear the list of provided frame factory callbacks. After this, a new and completely different
      *  set of frame factory callbacks can be provided together with a changed frame type mask. This allows changing the
      *  user-defined protocol regarding a TCP socket for which a different protocol was specified earlier.
      * 
@@ -113,9 +113,9 @@ public:
     
     /*! \brief  Register one subsequent frame factory callback
      * 
-     *  This method is use to clear the list of provided frame factory callbacks. After this, a new and completely different
-     *  set of frame factory callbacks can be provided together with a changed frame type mask. This allows changing the
-     *  user-defined protocol regarding a TCP socket for which a different protocol was specified earlier.
+     *  With each call of this method one subsequent frame factory is registered to the set of active frame factories. Each provided
+     *  frame factory has to be tagged with a frame type byte. The frame type byte corresponds to the first byte of the serialized frame
+     *  and must allow a distict mapping to the correct frame type and thus the correct frame factory.
      * 
      *  \param  a_FrameType the frame type together with the frame type mask must match to activate the respective frame factory callback
      *  \param  a_FrameFactory the frame factory callback that is invoked if the frame type matches
