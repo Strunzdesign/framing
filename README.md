@@ -5,7 +5,7 @@ This software is intended to be portable and makes use of the boost libraries. I
 and Microsoft Windows (nuwen MinGW).
 
 ## Latest stable release of the framing toolkit:
-- v1.0 from 06.10.2016
+- v1.1 from 22.11.2016
 
 ## Required libraries and tools:
 - Boost, a platform-independent toolkit for development of C++ applications
