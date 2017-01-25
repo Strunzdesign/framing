@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 - Nothing yet
 
 
-## [1.0] - 2016-11-22
+## [1.1] - 2016-11-22
 ### Added
 - Added doxygen headers
 - Added INSTALL file
